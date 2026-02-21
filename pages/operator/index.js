@@ -1,12 +1,26 @@
+import { useState, useEffect } from 'react'
 import GridStatus from '../../components/GridStatus'
 
 /*
  * Operator Dashboard — Main command center for AESO operators
  * Shows real-time grid status + quick operational metrics.
- * GridStatus component is reused from the consumer side (same data, different context).
+ * Model accuracy is read from accuracy.json (real Prophet output).
  */
 
 export default function OperatorDashboard() {
+  const [accuracy, setAccuracy] = useState(null)
+
+  useEffect(() => {
+    fetch('/accuracy.json')
+      .then(r => r.json())
+      .then(d => setAccuracy(d))
+      .catch(() => {})
+  }, [])
+
+  const headlineAccuracy = accuracy?.mae_mw != null
+    ? (100 - (accuracy.mae_mw / 11700) * 100).toFixed(1) + '%'
+    : '--'
+
   return (
     <div style={{ padding: '32px 40px' }}>
       {/* Header */}
@@ -40,7 +54,7 @@ export default function OperatorDashboard() {
           { label: 'Active Users', value: '12,847', change: '+3.2%', up: true },
           { label: 'MW Saved Today', value: '16.5', change: '+1.8 MW', up: true },
           { label: 'Alerts Sent', value: '3', change: 'Last 24h', up: null },
-          { label: 'Model Accuracy', value: '94.3%', change: '30-day avg', up: null },
+          { label: 'Model Accuracy', value: headlineAccuracy, change: 'From accuracy.json', up: null },
         ].map((stat, i) => (
           <div key={i} style={{
             background: '#0a0a0a',

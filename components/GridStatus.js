@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  ComposedChart, Line, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ReferenceLine, CartesianGrid
 } from 'recharts'
 
@@ -50,6 +50,8 @@ function generateHistorical() {
              time.toLocaleTimeString('en-CA', { hour: 'numeric', hour12: true }),
       historical: Math.round(baseMW),
       predicted: undefined,
+      lower: 0,
+      bandWidth: 0,
     })
   }
   return data
@@ -60,11 +62,14 @@ function generateHistorical() {
 function ChartTooltip({ active, payload, label: tooltipLabel }) {
   if (!active || !payload?.length) return null
 
-  const validEntries = payload.filter(p => typeof p.value === 'number' && !isNaN(p.value))
+  // Filter to only show real data lines (not the hidden band boundaries)
+  const validEntries = payload.filter(
+    p => typeof p.value === 'number' && !isNaN(p.value) && p.dataKey !== 'lower' && p.dataKey !== 'upper'
+  )
   if (validEntries.length === 0) return null
 
-  // Get the display label from the data point
   const displayLabel = payload[0]?.payload?.label || ''
+  const pt = payload[0]?.payload
 
   return (
     <div style={{
@@ -85,6 +90,11 @@ function ChartTooltip({ active, payload, label: tooltipLabel }) {
           {p.name}: {p.value.toLocaleString()} MW
         </div>
       ))}
+      {pt?.lower != null && pt?.upper != null && (
+        <div style={{ color: '#555', fontSize: '11px', marginTop: '4px', fontFamily: "'SF Mono', monospace" }}>
+          Band: {pt.lower.toLocaleString()}–{pt.upper.toLocaleString()} MW
+        </div>
+      )}
     </div>
   )
 }
@@ -120,12 +130,19 @@ export default function GridStatus() {
 
         const historical = generateHistorical()
 
-        const predData = preds.slice(0, 24).map(p => ({
-          label: new Date(p.timestamp).toLocaleDateString('en-CA', { weekday: 'short' }) + ' ' +
-                 new Date(p.timestamp).toLocaleTimeString('en-CA', { hour: 'numeric', hour12: true }),
-          predicted: p.predicted_mw,
-          historical: undefined,
-        }))
+        const predData = preds.slice(0, 24).map(p => {
+          const lower = p.lower_bound ?? undefined
+          const upper = p.upper_bound ?? undefined
+          return {
+            label: new Date(p.timestamp).toLocaleDateString('en-CA', { weekday: 'short' }) + ' ' +
+                   new Date(p.timestamp).toLocaleTimeString('en-CA', { hour: 'numeric', hour12: true }),
+            predicted: p.predicted_mw,
+            lower,
+            upper,
+            bandWidth: (lower != null && upper != null) ? upper - lower : undefined,
+            historical: undefined,
+          }
+        })
 
         // Assign sequential idx to EVERY point — guarantees unique X values
         const combined = [...historical, ...predData].map((pt, i) => ({
@@ -303,11 +320,15 @@ export default function GridStatus() {
               <span style={{ display: 'inline-block', width: '16px', height: '2px', background: '#00d4ff', borderTop: '2px dashed #00d4ff' }} />
               <span style={{ color: '#555' }}>Predicted</span>
             </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '16px', height: '8px', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', borderRadius: '2px' }} />
+              <span style={{ color: '#555' }}>Confidence</span>
+            </span>
           </div>
         </div>
 
         <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
+          <ComposedChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis
               dataKey="idx"
@@ -345,6 +366,26 @@ export default function GridStatus() {
               name="Actual"
               connectNulls={false}
             />
+            <Area
+              type="monotone"
+              dataKey="lower"
+              stackId="band"
+              stroke="none"
+              fill="transparent"
+              connectNulls={false}
+              activeDot={false}
+              name="Lower"
+            />
+            <Area
+              type="monotone"
+              dataKey="bandWidth"
+              stackId="band"
+              stroke="none"
+              fill="rgba(0,212,255,0.12)"
+              connectNulls={false}
+              activeDot={false}
+              name="Band"
+            />
             <Line
               type="monotone"
               dataKey="predicted"
@@ -356,7 +397,7 @@ export default function GridStatus() {
               name="Predicted"
               connectNulls={false}
             />
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
 

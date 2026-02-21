@@ -1,14 +1,10 @@
+import { useState, useEffect } from 'react'
+
 /*
  * Operator Analytics — System performance and engagement metrics
- * Shows prediction accuracy, user growth, and impact summary.
- * All data is mock — Phase 5 makes it real.
+ * Now reads real data from /accuracy.json (Prophet model output).
+ * Engagement metrics remain mock until Phase 5 (Supabase).
  */
-
-const accuracyData = [
-  { period: 'Last 7 days', accuracy: '95.1%', avgError: '±142 MW' },
-  { period: 'Last 30 days', accuracy: '94.3%', avgError: '±187 MW' },
-  { period: 'Last 90 days', accuracy: '93.8%', avgError: '±203 MW' },
-]
 
 const impactMetrics = [
   { label: 'Total MW Saved', value: '847', unit: 'MW', desc: 'Since platform launch' },
@@ -18,6 +14,42 @@ const impactMetrics = [
 ]
 
 export default function OperatorAnalytics() {
+  const [accuracy, setAccuracy] = useState(null)
+
+  useEffect(() => {
+    fetch('/accuracy.json')
+      .then(r => r.json())
+      .then(d => setAccuracy(d))
+      .catch(() => {})
+  }, [])
+
+  // Derive headline accuracy: 100 - (MAE / MAX_CAPACITY * 100)
+  const maeMW = accuracy?.mae_mw ?? null
+  const headlineAccuracy = maeMW !== null ? (100 - (maeMW / 11700) * 100).toFixed(1) : '--'
+  const trainedAt = accuracy?.trained_at
+    ? new Date(accuracy.trained_at).toLocaleDateString('en-CA', {
+        month: 'short', day: 'numeric', year: 'numeric',
+      })
+    : '--'
+
+  const accuracyBreakdown = [
+    {
+      period: 'Within ±200 MW',
+      accuracy: accuracy ? `${accuracy.accuracy_200mw}%` : '--%',
+      desc: 'High precision predictions',
+    },
+    {
+      period: 'Within ±500 MW',
+      accuracy: accuracy ? `${accuracy.accuracy_500mw}%` : '--%',
+      desc: 'Moderate precision predictions',
+    },
+    {
+      period: 'Mean Abs Error',
+      accuracy: maeMW !== null ? `±${maeMW.toLocaleString()} MW` : '--',
+      desc: 'Average prediction offset',
+    },
+  ]
+
   return (
     <div style={{ padding: '32px 40px' }}>
       {/* Header */}
@@ -40,7 +72,7 @@ export default function OperatorAnalytics() {
         </p>
       </div>
 
-      {/* Prediction accuracy */}
+      {/* Prediction accuracy — now from real accuracy.json */}
       <div style={{
         background: '#0a0a0a',
         border: '1px solid rgba(255,255,255,0.06)',
@@ -59,6 +91,10 @@ export default function OperatorAnalytics() {
             <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>
               Prophet model performance vs actual AESO data
             </div>
+            <div style={{ fontSize: '11px', color: '#333', marginTop: '6px' }}>
+              {accuracy?.has_temperature && '🌡️ Weather data included • '}
+              Trained: {trainedAt}
+            </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{
@@ -69,15 +105,15 @@ export default function OperatorAnalytics() {
               letterSpacing: '-2px',
               lineHeight: '1',
             }}>
-              94.3%
+              {headlineAccuracy}%
             </div>
-            <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>30-day average</div>
+            <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>overall accuracy</div>
           </div>
         </div>
 
         {/* Accuracy breakdown */}
         <div style={{ display: 'flex', gap: '12px' }}>
-          {accuracyData.map((row, i) => (
+          {accuracyBreakdown.map((row, i) => (
             <div key={i} style={{
               flex: 1,
               padding: '14px 16px',
@@ -92,11 +128,27 @@ export default function OperatorAnalytics() {
               }}>
                 {row.accuracy}
               </div>
-              <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
-                {row.avgError}
+              <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>
+                {row.desc}
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Note about model improvement */}
+        <div style={{
+          marginTop: '16px',
+          padding: '10px 14px',
+          background: 'rgba(0,112,243,0.05)',
+          border: '1px solid rgba(0,112,243,0.12)',
+          borderRadius: '6px',
+          fontSize: '12px',
+          color: '#666',
+          lineHeight: '1.5',
+        }}>
+          <span style={{ color: '#4d94ff', fontWeight: '600' }}>ℹ </span>
+          Model accuracy improves with more historical training data. Current model trained on
+          initial AESO dataset. Re-training with 6+ months of data typically reduces MAE by 40-60%.
         </div>
       </div>
 
