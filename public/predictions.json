@@ -1,0 +1,294 @@
+{
+    "generated_at": "2026-02-20T23:00:00-07:00",
+    "model": "prophet_v1",
+    "predictions": [
+        {
+            "timestamp": "2026-02-21T00:00:00-07:00",
+            "predicted_mw": 9380,
+            "capacity_pct": 80,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T01:00:00-07:00",
+            "predicted_mw": 9120,
+            "capacity_pct": 78,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T02:00:00-07:00",
+            "predicted_mw": 8940,
+            "capacity_pct": 76,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T03:00:00-07:00",
+            "predicted_mw": 8780,
+            "capacity_pct": 75,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T04:00:00-07:00",
+            "predicted_mw": 8650,
+            "capacity_pct": 74,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T05:00:00-07:00",
+            "predicted_mw": 8890,
+            "capacity_pct": 76,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T06:00:00-07:00",
+            "predicted_mw": 9340,
+            "capacity_pct": 80,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T07:00:00-07:00",
+            "predicted_mw": 9780,
+            "capacity_pct": 84,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T08:00:00-07:00",
+            "predicted_mw": 10120,
+            "capacity_pct": 86,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T09:00:00-07:00",
+            "predicted_mw": 10340,
+            "capacity_pct": 88,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T10:00:00-07:00",
+            "predicted_mw": 10480,
+            "capacity_pct": 90,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T11:00:00-07:00",
+            "predicted_mw": 10520,
+            "capacity_pct": 90,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-21T12:00:00-07:00",
+            "predicted_mw": 10380,
+            "capacity_pct": 89,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T13:00:00-07:00",
+            "predicted_mw": 10290,
+            "capacity_pct": 88,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T14:00:00-07:00",
+            "predicted_mw": 10350,
+            "capacity_pct": 88,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-21T15:00:00-07:00",
+            "predicted_mw": 10580,
+            "capacity_pct": 90,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-21T16:00:00-07:00",
+            "predicted_mw": 10890,
+            "capacity_pct": 93,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-21T17:00:00-07:00",
+            "predicted_mw": 11240,
+            "capacity_pct": 96,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-21T18:00:00-07:00",
+            "predicted_mw": 11520,
+            "capacity_pct": 98,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-21T19:00:00-07:00",
+            "predicted_mw": 11580,
+            "capacity_pct": 99,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-21T20:00:00-07:00",
+            "predicted_mw": 11340,
+            "capacity_pct": 97,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-21T21:00:00-07:00",
+            "predicted_mw": 10980,
+            "capacity_pct": 94,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-21T22:00:00-07:00",
+            "predicted_mw": 10540,
+            "capacity_pct": 90,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-21T23:00:00-07:00",
+            "predicted_mw": 10020,
+            "capacity_pct": 86,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T00:00:00-07:00",
+            "predicted_mw": 9540,
+            "capacity_pct": 82,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T01:00:00-07:00",
+            "predicted_mw": 9280,
+            "capacity_pct": 79,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T02:00:00-07:00",
+            "predicted_mw": 9050,
+            "capacity_pct": 77,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T03:00:00-07:00",
+            "predicted_mw": 8870,
+            "capacity_pct": 76,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T04:00:00-07:00",
+            "predicted_mw": 8720,
+            "capacity_pct": 75,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T05:00:00-07:00",
+            "predicted_mw": 8950,
+            "capacity_pct": 77,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T06:00:00-07:00",
+            "predicted_mw": 9410,
+            "capacity_pct": 80,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T07:00:00-07:00",
+            "predicted_mw": 9850,
+            "capacity_pct": 84,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T08:00:00-07:00",
+            "predicted_mw": 10200,
+            "capacity_pct": 87,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T09:00:00-07:00",
+            "predicted_mw": 10410,
+            "capacity_pct": 89,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T10:00:00-07:00",
+            "predicted_mw": 10550,
+            "capacity_pct": 90,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-22T11:00:00-07:00",
+            "predicted_mw": 10600,
+            "capacity_pct": 91,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-22T12:00:00-07:00",
+            "predicted_mw": 10440,
+            "capacity_pct": 89,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T13:00:00-07:00",
+            "predicted_mw": 10350,
+            "capacity_pct": 88,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T14:00:00-07:00",
+            "predicted_mw": 10420,
+            "capacity_pct": 89,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T15:00:00-07:00",
+            "predicted_mw": 10650,
+            "capacity_pct": 91,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-22T16:00:00-07:00",
+            "predicted_mw": 10950,
+            "capacity_pct": 94,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-22T17:00:00-07:00",
+            "predicted_mw": 11180,
+            "capacity_pct": 96,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-22T18:00:00-07:00",
+            "predicted_mw": 11450,
+            "capacity_pct": 98,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-22T19:00:00-07:00",
+            "predicted_mw": 11510,
+            "capacity_pct": 98,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-22T20:00:00-07:00",
+            "predicted_mw": 11280,
+            "capacity_pct": 96,
+            "risk_level": "critical"
+        },
+        {
+            "timestamp": "2026-02-22T21:00:00-07:00",
+            "predicted_mw": 10920,
+            "capacity_pct": 93,
+            "risk_level": "warning"
+        },
+        {
+            "timestamp": "2026-02-22T22:00:00-07:00",
+            "predicted_mw": 10480,
+            "capacity_pct": 90,
+            "risk_level": "safe"
+        },
+        {
+            "timestamp": "2026-02-22T23:00:00-07:00",
+            "predicted_mw": 9960,
+            "capacity_pct": 85,
+            "risk_level": "safe"
+        }
+    ]
+}
