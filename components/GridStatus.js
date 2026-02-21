@@ -1,0 +1,383 @@
+'use client'
+import { useState, useEffect } from 'react'
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  ReferenceLine, CartesianGrid
+} from 'recharts'
+
+const MAX_CAPACITY = 11700
+
+/*
+ * GridStatus — The unified "command center" for Alberta's grid
+ * 
+ * This component COMBINES three previously separate components:
+ *   - LiveUsageCard → current MW reading + status
+ *   - RiskIndicator → risk level + countdown
+ *   - UsageGraph → historical + predicted chart
+ * 
+ * WHY COMBINE THEM:
+ * They all answer the same question: "What's happening with the grid?"
+ * Showing them as one unified panel is cleaner and more professional.
+ * The data flows naturally: current state → visual trend → what's coming next.
+ * 
+ * DATA FLOW:
+ * 1. Fetches /api/live-usage → current MW + status
+ * 2. Fetches /predictions.json → predicted MW for next 48h
+ * 3. Generates mock historical data (last 24h) — will be real AESO data later
+ * 4. Combines everything into one view
+ */
+
+// ── Generate mock historical data ──
+// Creates a realistic daily usage curve for the last 24 hours
+// Uses sequential idx as unique key + label for display
+function generateHistorical() {
+  const data = []
+  const now = new Date()
+  for (let i = 23; i >= 0; i--) {
+    const time = new Date(now - i * 60 * 60 * 1000)
+    const hour = time.getHours()
+
+    let baseMW = 9200
+    if (hour >= 6 && hour < 10) baseMW = 9200 + (hour - 6) * 350
+    if (hour >= 10 && hour < 16) baseMW = 10400 + Math.sin(hour) * 200
+    if (hour >= 16 && hour < 21) baseMW = 10400 + (hour - 16) * 250
+    if (hour >= 21) baseMW = 11000 - (hour - 21) * 400
+    if (hour < 6) baseMW = 8800 + hour * 80
+    baseMW += (Math.random() - 0.5) * 300
+
+    data.push({
+      label: time.toLocaleDateString('en-CA', { weekday: 'short' }) + ' ' +
+             time.toLocaleTimeString('en-CA', { hour: 'numeric', hour12: true }),
+      historical: Math.round(baseMW),
+      predicted: undefined,
+    })
+  }
+  return data
+}
+
+// ── Custom chart tooltip ──
+// STRICT FILTER: Only shows series where data is a real number
+function ChartTooltip({ active, payload, label: tooltipLabel }) {
+  if (!active || !payload?.length) return null
+
+  const validEntries = payload.filter(p => typeof p.value === 'number' && !isNaN(p.value))
+  if (validEntries.length === 0) return null
+
+  // Get the display label from the data point
+  const displayLabel = payload[0]?.payload?.label || ''
+
+  return (
+    <div style={{
+      background: '#0a0a0a',
+      border: '1px solid rgba(255,255,255,0.15)',
+      borderRadius: '8px',
+      padding: '10px 14px',
+      fontSize: '13px',
+      fontFamily: "'Inter', sans-serif",
+    }}>
+      <div style={{ color: '#888', marginBottom: '4px' }}>{displayLabel}</div>
+      {validEntries.map((p, i) => (
+        <div key={i} style={{
+          color: p.color,
+          fontWeight: '600',
+          fontFamily: "'SF Mono', monospace",
+        }}>
+          {p.name}: {p.value.toLocaleString()} MW
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function GridStatus() {
+  const [liveData, setLiveData] = useState(null)
+  const [predictions, setPredictions] = useState([])
+  const [chartData, setChartData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [now, setNow] = useState(new Date())
+
+  // Fetch live data from AESO
+  useEffect(() => {
+    const fetchLive = async () => {
+      try {
+        const res = await fetch('/api/live-usage')
+        setLiveData(await res.json())
+      } catch { }
+      setLoading(false)
+    }
+    fetchLive()
+    const interval = setInterval(fetchLive, 5 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Fetch predictions + build chart data
+  useEffect(() => {
+    fetch('/predictions.json')
+      .then(r => r.json())
+      .then(d => {
+        const preds = d.predictions ?? []
+        setPredictions(preds)
+
+        const historical = generateHistorical()
+
+        const predData = preds.slice(0, 24).map(p => ({
+          label: new Date(p.timestamp).toLocaleDateString('en-CA', { weekday: 'short' }) + ' ' +
+                 new Date(p.timestamp).toLocaleTimeString('en-CA', { hour: 'numeric', hour12: true }),
+          predicted: p.predicted_mw,
+          historical: undefined,
+        }))
+
+        // Assign sequential idx to EVERY point — guarantees unique X values
+        const combined = [...historical, ...predData].map((pt, i) => ({
+          ...pt,
+          idx: i,
+        }))
+
+        setChartData(combined)
+      })
+      .catch(() => setChartData(generateHistorical().map((pt, i) => ({ ...pt, idx: i }))))
+  }, [])
+
+  // Tick countdown every second
+  useEffect(() => {
+    const tick = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(tick)
+  }, [])
+
+  // ── Derived values ──
+  const pct = liveData?.capacity_percent ?? 0
+  const status = liveData?.status ?? 'STABLE'
+
+  const statusConfig = {
+    STABLE:   { color: '#00c853', label: 'STABLE',   bg: 'rgba(0, 200, 83, 0.06)', border: 'rgba(0, 200, 83, 0.15)' },
+    WARNING:  { color: '#ff9500', label: 'ELEVATED', bg: 'rgba(255, 149, 0, 0.06)', border: 'rgba(255, 149, 0, 0.15)' },
+    CRITICAL: { color: '#ff3b30', label: 'CRITICAL', bg: 'rgba(255, 59, 48, 0.06)', border: 'rgba(255, 59, 48, 0.15)' },
+  }
+  const config = statusConfig[status] || statusConfig.STABLE
+
+  // Bar gradient
+  const barGradient = pct > 95
+    ? 'linear-gradient(90deg, #ff3b30, #ff9500)'
+    : pct > 85
+    ? 'linear-gradient(90deg, #0070f3, #ff9500)'
+    : 'linear-gradient(90deg, #0070f3, #00d4ff)'
+
+  // Countdown to next risk
+  const nextRisk = predictions.find(p =>
+    new Date(p.timestamp) > now && (p.risk_level === 'warning' || p.risk_level === 'critical')
+  )
+  const countdown = (() => {
+    if (!nextRisk) return null
+    const diff = new Date(nextRisk.timestamp) - now
+    if (diff <= 0) return null
+    return {
+      hours: Math.floor(diff / 3600000),
+      mins: Math.floor((diff % 3600000) / 60000),
+      secs: Math.floor((diff % 60000) / 1000),
+      risk: nextRisk.risk_level,
+    }
+  })()
+
+  // ── Loading skeleton ──
+  if (loading) return (
+    <div style={{
+      background: '#0a0a0a',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: '12px',
+      padding: '32px',
+      minHeight: '500px',
+    }}>
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '24px', width: '40%', marginBottom: '24px' }} />
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '56px', width: '60%', marginBottom: '24px' }} />
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '300px', width: '100%' }} />
+    </div>
+  )
+
+  return (
+    <div style={{
+      background: '#0a0a0a',
+      border: `1px solid ${config.border}`,
+      borderRadius: '12px',
+      overflow: 'hidden',
+      fontFamily: "'Inter', sans-serif",
+      transition: 'border-color 0.5s',
+    }}>
+      {/* ═══ TOP: Current Status Bar ═══ */}
+      <div style={{
+        padding: '28px 32px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flexWrap: 'wrap',
+        gap: '20px',
+      }}>
+        {/* Left: MW reading */}
+        <div>
+          <div style={{ fontSize: '12px', color: '#555', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Alberta Grid — Live
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+            <span style={{
+              fontSize: '48px',
+              fontWeight: '700',
+              fontFamily: "'SF Mono', 'Fira Code', monospace",
+              color: config.color,
+              lineHeight: '1',
+              letterSpacing: '-2px',
+            }}>
+              {liveData?.usage_mw?.toLocaleString()}
+            </span>
+            <span style={{ fontSize: '18px', color: '#555' }}>MW</span>
+          </div>
+          <div style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
+            {pct}% of {MAX_CAPACITY.toLocaleString()} MW capacity
+          </div>
+        </div>
+
+        {/* Right: Status badge + countdown */}
+        <div style={{ textAlign: 'right' }}>
+          {/* Status badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 18px',
+            background: config.bg,
+            border: `1px solid ${config.border}`,
+            borderRadius: '8px',
+            marginBottom: '12px',
+          }}>
+            <span style={{
+              width: '8px', height: '8px', borderRadius: '50%',
+              background: config.color,
+              boxShadow: `0 0 8px ${config.color}`,
+            }} />
+            <span style={{ fontSize: '15px', fontWeight: '700', color: config.color, letterSpacing: '1px' }}>
+              {config.label}
+            </span>
+          </div>
+          {/* Countdown */}
+          {countdown && (
+            <div style={{ fontSize: '13px', color: '#888' }}>
+              Next {countdown.risk === 'critical' ? 'critical' : 'elevated'} period in{' '}
+              <span style={{ color: '#ededed', fontFamily: "'SF Mono', monospace", fontWeight: '600' }}>
+                {countdown.hours}h {countdown.mins}m {countdown.secs}s
+              </span>
+            </div>
+          )}
+          {!countdown && (
+            <div style={{ fontSize: '13px', color: '#00c853' }}>
+              ✓ No risk periods ahead
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Capacity bar */}
+      <div style={{ padding: '0 32px 24px' }}>
+        <div style={{
+          width: '100%', height: '4px', background: '#1a1a1a', borderRadius: '2px', overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${pct}%`, height: '100%', background: barGradient,
+            borderRadius: '2px', transition: 'width 0.7s ease',
+          }} />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+
+      {/* ═══ MIDDLE: Usage Chart ═══ */}
+      <div style={{ padding: '24px 32px 8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <span style={{ fontSize: '14px', color: '#888' }}>
+            24h Historical → 24h Predicted
+          </span>
+          <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '16px', height: '2px', background: '#0070f3' }} />
+              <span style={{ color: '#555' }}>Actual</span>
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '16px', height: '2px', background: '#00d4ff', borderTop: '2px dashed #00d4ff' }} />
+              <span style={{ color: '#555' }}>Predicted</span>
+            </span>
+          </div>
+        </div>
+
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <XAxis
+              dataKey="idx"
+              tick={{ fill: '#555', fontSize: 10 }}
+              tickLine={false}
+              axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+              interval="preserveStartEnd"
+              tickFormatter={(idx) => {
+                const pt = chartData[idx]
+                return pt?.label || ''
+              }}
+            />
+            <YAxis
+              domain={[8000, 12500]}
+              tick={{ fill: '#555', fontSize: 10 }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={v => `${(v / 1000).toFixed(1)}k`}
+            />
+            <Tooltip content={<ChartTooltip />} />
+            <ReferenceLine
+              y={MAX_CAPACITY}
+              stroke="#ff3b30"
+              strokeDasharray="8 4"
+              strokeWidth={1}
+              label={{ value: 'Max Capacity', fill: '#ff3b30', fontSize: 10, position: 'right' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="historical"
+              stroke="#0070f3"
+              strokeWidth={2}
+              dot={false}
+              activeDot={false}
+              name="Actual"
+              connectNulls={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="predicted"
+              stroke="#00d4ff"
+              strokeWidth={2}
+              strokeDasharray="6 4"
+              dot={false}
+              activeDot={false}
+              name="Predicted"
+              connectNulls={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* ═══ BOTTOM: Footer info ═══ */}
+      <div style={{
+        padding: '12px 32px 20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontSize: '12px',
+        color: '#555',
+      }}>
+        <span>
+          {liveData?.is_mock && '⚠️ Demo mode — cached data • '}
+          Updated {liveData?.last_updated
+            ? new Date(liveData.last_updated).toLocaleTimeString()
+            : '--'}
+        </span>
+        <span>
+          Source: AESO • Model: Prophet
+        </span>
+      </div>
+    </div>
+  )
+}
