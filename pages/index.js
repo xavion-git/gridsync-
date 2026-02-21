@@ -1,5 +1,6 @@
 import LiveUsageCard from '../components/LiveUsageCard'
 import PredictionTable from '../components/PredictionTable'
+import CollectiveImpact from '@/components/CollectiveImpact'
 
 export default function Home() {
   return (
@@ -17,6 +18,8 @@ export default function Home() {
           <LiveUsageCard />
           <PredictionTable />
         </div>
+
+        <CollectiveImpact />
 
       </div>
     </main>
