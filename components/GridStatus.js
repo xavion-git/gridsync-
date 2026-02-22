@@ -116,7 +116,7 @@ export default function GridStatus() {
       setLoading(false)
     }
     fetchLive()
-    const interval = setInterval(fetchLive, 5 * 60 * 1000)
+    const interval = setInterval(fetchLive, 60 * 1000) // refresh every 60s
     return () => clearInterval(interval)
   }, [])
 
