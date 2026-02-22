@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useUser } from '../hooks/useUser'
 import { supabase } from '../lib/supabase'
+import BoltRoundedIcon from '@mui/icons-material/BoltRounded'
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded'
 
 /*
  * Profile Page — Shows real user data from Supabase
@@ -29,11 +32,36 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '32px 20px', textAlign: 'center', color: '#555' }}>
-        Loading...
+      <div style={{ padding: '32px 20px', fontFamily: "'Inter', sans-serif" }}>
+        <style>{`
+          @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          .sk { background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+        `}</style>
+        {/* Title */}
+        <div className="sk" style={{ height: '22px', width: '80px', marginBottom: '24px' }} />
+        {/* Avatar card */}
+        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '24px', marginBottom: '16px' }}>
+          <div className="sk" style={{ width: '56px', height: '56px', borderRadius: '50%', marginBottom: '16px' }} />
+          <div className="sk" style={{ height: '16px', width: '45%', marginBottom: '8px' }} />
+          <div className="sk" style={{ height: '13px', width: '60%', marginBottom: '8px' }} />
+          <div className="sk" style={{ height: '22px', width: '70px', borderRadius: '6px' }} />
+        </div>
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
+              <div className="sk" style={{ height: '20px', width: '50%', margin: '0 auto 8px' }} />
+              <div className="sk" style={{ height: '11px', width: '60%', margin: '0 auto' }} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
+
 
   // Not logged in
   if (!user) {
@@ -94,7 +122,9 @@ export default function ProfilePage() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '22px', marginBottom: '16px',
         }}>
-          {role === 'operator' ? '⚡' : '🏠'}
+          {role === 'operator'
+            ? <BoltRoundedIcon sx={{ fontSize: 26, color: '#fff' }} />
+            : <HomeRoundedIcon sx={{ fontSize: 26, color: '#fff' }} />}
         </div>
 
         <div style={{ fontSize: '16px', fontWeight: '600', color: '#ededed', marginBottom: '4px' }}>

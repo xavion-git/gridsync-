@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [operatorCode, setOperatorCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -59,8 +60,14 @@ export default function LoginPage() {
           })
         }
 
-        // Redirect immediately — email confirmation is disabled
-        router.push(role === 'operator' ? '/operator' : '/')
+        // If session exists → email confirmation is OFF or auto-login worked → redirect
+        if (data.session) {
+          router.push(role === 'operator' ? '/operator' : '/')
+          return
+        }
+
+        // No session → usually means confirmation is ON or a manual sign-in is needed
+        setSignupSuccess(true)
         return
 
       } else {
@@ -95,7 +102,14 @@ export default function LoginPage() {
         router.push(userRole === 'operator' ? '/operator' : '/')
       }
     } catch (err) {
-      setError(err.message)
+      // If signup attempted but user already exists → switch to sign in
+      if (err.message?.toLowerCase().includes('already registered') ||
+          err.message?.toLowerCase().includes('already been registered')) {
+        setMode('signin')
+        setError('This email is already registered — try signing in instead.')
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -118,7 +132,7 @@ export default function LoginPage() {
             fontSize: '28px', fontWeight: '800', color: '#ededed',
             letterSpacing: '-1px',
           }}>
-            ⚡ GridSync
+            GridSync
           </div>
           <div style={{ fontSize: '13px', color: '#555', marginTop: '6px' }}>
             Alberta Grid Intelligence Platform
@@ -132,6 +146,48 @@ export default function LoginPage() {
           borderRadius: '12px',
           padding: '28px',
         }}>
+
+          {/* Signup success — check email */}
+          {signupSuccess ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '50%',
+                background: 'rgba(0,200,83,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '28px', margin: '0 auto 16px',
+              }}>
+                ✉️
+              </div>
+              <div style={{
+                fontSize: '18px', fontWeight: '700', color: '#ededed',
+                marginBottom: '8px',
+              }}>
+                Account Created
+              </div>
+              <div style={{
+                fontSize: '13px', color: '#555', marginBottom: '20px',
+                lineHeight: '1.5',
+              }}>
+                If you enabled email confirmation, please check <span style={{ color: '#4d94ff' }}>{email}</span>.<br/>
+                Otherwise, you can sign in directly below.
+              </div>
+              <button
+                onClick={() => { setSignupSuccess(false); setMode('signin') }}
+                style={{
+                  width: '100%', padding: '12px',
+                  background: '#0070f3', color: '#fff',
+                  border: 'none', borderRadius: '8px',
+                  fontSize: '14px', fontWeight: '600',
+                  cursor: 'pointer',
+                  fontFamily: "'Inter', sans-serif",
+                }}
+              >
+                Back to Sign In
+              </button>
+            </div>
+          ) : (
+          <>
+
           {/* Tabs */}
           <div style={{
             display: 'flex', gap: '4px', marginBottom: '24px',
@@ -176,8 +232,8 @@ export default function LoginPage() {
                 <label style={{ ...labelStyle, marginBottom: '8px' }}>I am a...</label>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                   {[
-                    { id: 'consumer', label: '🏠 Consumer', desc: 'Albertan resident' },
-                    { id: 'operator', label: '⚡ Operator', desc: 'AESO / utility' },
+                    { id: 'consumer', label: 'Consumer', desc: 'Albertan resident' },
+                    { id: 'operator', label: 'Operator', desc: 'AESO / utility' },
                   ].map(r => (
                     <button
                       type="button" key={r.id}
@@ -239,6 +295,8 @@ export default function LoginPage() {
               {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
             </button>
           </form>
+          </>
+          )}
         </div>
 
         <div style={{ fontSize: '11px', color: '#333', textAlign: 'center', marginTop: '20px' }}>

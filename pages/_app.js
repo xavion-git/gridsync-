@@ -26,6 +26,13 @@ function MyApp({ Component, pageProps }) {
     }
   }, [loading, isOperator, user])
 
+  // Redirect operators landing on / to /operator dashboard
+  useEffect(() => {
+    if (!loading && user && role === 'operator' && router.pathname === '/') {
+      router.push('/operator')
+    }
+  }, [loading, user, role, router.pathname])
+
   // ─── LOGIN PAGE: no nav ───
   if (isLoginPage) {
     return <Component {...pageProps} />
