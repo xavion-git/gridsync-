@@ -55,7 +55,7 @@ export default function OperatorDashboard() {
   }, [liveStats?.usageMw])
 
   const headlineAccuracy = accuracy?.mae_mw != null
-    ? (100 - (accuracy.mae_mw / 11700) * 100).toFixed(1) + '%'
+    ? (100 - (accuracy.mae_mw / 13000) * 100).toFixed(1) + '%'
     : '--'
 
   return (

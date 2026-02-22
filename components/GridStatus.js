@@ -5,7 +5,7 @@ import {
   ReferenceLine, CartesianGrid
 } from 'recharts'
 
-const MAX_CAPACITY = 11700
+const MAX_CAPACITY = 13000
 
 /*
  * GridStatus — The unified "command center" for Alberta's grid
@@ -30,7 +30,7 @@ const MAX_CAPACITY = 11700
 // ── Fetch real historical data from AESO API ──
 async function fetchHistorical(anchorMw) {
   try {
-    const res = await fetch(`/api/historical-usage?anchor=${anchorMw || 10500}`)
+    const res = await fetch(`/api/historical-usage?anchor=${anchorMw || 11200}`)
     const json = await res.json()
     if (!json.data || json.data.length === 0) throw new Error('empty')
     return json.data.map(pt => ({
@@ -114,7 +114,7 @@ export default function GridStatus({ onReady }) {
   useEffect(() => {
     if (!loading && onReady) {
       onReady({
-        pct: Math.round((liveData?.usage_mw ?? 0) / 11700 * 100),
+        pct: Math.round((liveData?.usage_mw ?? 0) / MAX_CAPACITY * 100),
         status: liveData?.status ?? 'STABLE',
         usageMw: liveData?.usage_mw ?? null,
       })
@@ -393,7 +393,7 @@ export default function GridStatus({ onReady }) {
               }}
             />
             <YAxis
-              domain={[8000, 12500]}
+              domain={[8000, 14000]}
               tick={{ fill: '#555', fontSize: 10 }}
               tickLine={false}
               axisLine={false}

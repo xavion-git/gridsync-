@@ -80,9 +80,9 @@ S_daily(t) = a1·cos(2πt/24)  + b1·sin(2πt/24)
 ```
 
 Captures the daily usage curve:
-- Low at 3am (~8,800 MW)
+- Low at 3am (~9,000 MW)
 - Ramp up from 6am
-- Peak at 6-9pm (~11,500 MW)
+- Peak at 6-9pm (~12,000+ MW)
 - Drop off overnight
 
 ---
@@ -108,7 +108,7 @@ S_yearly(t) = SUM(n=1 to 10)[
 ```
 
 Captures the winter/summer pattern:
-- Alberta winters push demand toward the 11,700 MW cap
+- Alberta winters push demand toward the 13,000 MW cap
 - Spring and fall are shoulder periods
 - 10 harmonics used because yearly patterns are more complex
 

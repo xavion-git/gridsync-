@@ -9,7 +9,7 @@
 ---
 
 ## 🚩 The Problem
-Alberta's power grid is under increasing pressure. Cold snaps, extreme heat, and industrial growth lead to **demand spikes** that can exceed the grid's capacity (approaching the 11,700 MW threshold). When the grid fails, rolling blackouts occur, affecting hospitals, businesses, and homes.
+Alberta's power grid is under increasing pressure. Cold snaps, extreme heat, and industrial growth lead to **demand spikes** that can exceed the grid's capacity (approaching the 13,000 MW threshold). We recently saw a new all-time record of **12,785 MW** in December 2025. When the grid fails, rolling blackouts occur, affecting hospitals, businesses, and homes.
 
 ## 🚀 The Solution
 GridSync is an AI-powered coordination platform that turns Albertans into a "virtual power plant." By predicting grid stress **24-48 hours in advance**, we give community members the time they need to shift their usage, preventing blackouts before they happen.

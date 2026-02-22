@@ -1,4 +1,4 @@
-const MAX_CAPACITY = 11700
+const MAX_CAPACITY = 13000
 
 /*
  * /api/historical-usage — Returns last 24h of real Alberta grid demand
@@ -11,7 +11,7 @@ const MAX_CAPACITY = 11700
  */
 export default async function handler(req, res) {
   const apiKey = process.env.AESO_API_KEY
-  const anchor = parseFloat(req.query.anchor) || 10500
+  const anchor = parseFloat(req.query.anchor) || 11200
 
   if (!apiKey) {
     return res.status(200).json({

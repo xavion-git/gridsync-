@@ -41,8 +41,8 @@ future['is_weekend']    = (future['ds'].dt.dayofweek >= 5).astype(int)
 forecast = model.predict(future)
 
 def get_risk(mw):
-    if mw > 11500: return 'critical'
-    if mw > 10500: return 'warning'
+    if mw > 12200: return 'critical'
+    if mw > 11200: return 'warning'
     return 'safe'
 
 results = []
@@ -54,7 +54,7 @@ for i, row in forecast.iterrows():
         'predicted_mw':  mw,
         'lower_bound':   max(0, round(row['yhat_lower'])),
         'upper_bound':   round(row['yhat_upper']),
-        'capacity_pct':  round((mw / 11700) * 100, 1),
+        'capacity_pct':  round((mw / 13000) * 100, 1),
         'risk_level':    get_risk(mw),
         'temperature_c': round(temp, 1),
     })
