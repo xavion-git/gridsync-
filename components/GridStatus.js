@@ -99,7 +99,7 @@ function ChartTooltip({ active, payload, label: tooltipLabel }) {
   )
 }
 
-export default function GridStatus() {
+export default function GridStatus({ onReady }) {
   const [liveData, setLiveData] = useState(null)
   const [predictions, setPredictions] = useState([])
   const [chartData, setChartData] = useState([])
@@ -116,9 +116,20 @@ export default function GridStatus() {
       setLoading(false)
     }
     fetchLive()
-    const interval = setInterval(fetchLive, 60 * 1000) // refresh every 60s
+    const interval = setInterval(fetchLive, 60 * 1000)
     return () => clearInterval(interval)
   }, [])
+
+  // Fire onReady with live stats when loading finishes
+  useEffect(() => {
+    if (!loading && onReady) {
+      onReady({
+        pct: Math.round((liveData?.usage_mw ?? 0) / 11700 * 100),
+        status: liveData?.status ?? 'STABLE',
+        usageMw: liveData?.usage_mw ?? null,
+      })
+    }
+  }, [loading])
 
   // Fetch predictions + build chart data
   useEffect(() => {
@@ -199,14 +210,23 @@ export default function GridStatus() {
   if (loading) return (
     <div style={{
       background: '#0a0a0a',
-      border: '1px solid rgba(255,255,255,0.08)',
+      border: '1px solid rgba(255,255,255,0.06)',
       borderRadius: '12px',
-      padding: '32px',
-      minHeight: '500px',
+      padding: '28px 32px',
+      minHeight: '440px',
     }}>
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '24px', width: '40%', marginBottom: '24px' }} />
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '56px', width: '60%', marginBottom: '24px' }} />
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', height: '300px', width: '100%' }} />
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .sk { background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+      `}</style>
+      <div className="sk" style={{ height: '12px', width: '30%', marginBottom: '20px' }} />
+      <div className="sk" style={{ height: '48px', width: '50%', marginBottom: '8px' }} />
+      <div className="sk" style={{ height: '12px', width: '38%', marginBottom: '24px' }} />
+      <div className="sk" style={{ height: '4px', width: '100%', marginBottom: '28px' }} />
+      <div className="sk" style={{ height: '300px', width: '100%' }} />
     </div>
   )
 
@@ -327,7 +347,7 @@ export default function GridStatus() {
           </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={420}>
           <ComposedChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis

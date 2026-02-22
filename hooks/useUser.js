@@ -37,16 +37,26 @@ export function useUser() {
 
   async function fetchRole(authUser) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', authUser.id)
         .single()
-      
+
+      // Profile not found → user was deleted from Supabase but session is cached
+      // Force sign them out to clear the stale token
+      if (!data && !error?.message?.includes('permission')) {
+        await supabase.auth.signOut()
+        setUser(null)
+        setRole(null)
+        setLoading(false)
+        return
+      }
+
       // Use profiles table role, fallback to metadata, then default to consumer
       setRole(data?.role ?? authUser.user_metadata?.role ?? 'consumer')
     } catch {
-      // If profiles query fails entirely, use metadata
+      // If profiles query fails entirely, use metadata as fallback
       setRole(authUser.user_metadata?.role ?? 'consumer')
     }
     setLoading(false)
