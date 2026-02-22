@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useUser } from '../hooks/useUser'
 
 /*
  * OperatorNav — Sidebar for AESO operators
  * Design: Linear.app-inspired sidebar. Dark, minimal, professional.
- * Left border highlight on active page. AESO connection status at bottom.
+ * Left border highlight on active page. Sign out + AESO status at bottom.
  */
 
 const navItems = [
@@ -54,6 +55,12 @@ const navItems = [
 
 export default function OperatorNav() {
   const router = useRouter()
+  const { user, signOut } = useUser()
+
+  async function handleSignOut() {
+    await signOut()
+    router.push('/login')
+  }
 
   return (
     <nav style={{
@@ -128,12 +135,33 @@ export default function OperatorNav() {
         })}
       </div>
 
-      {/* Bottom: connection status */}
+      {/* Bottom: user + connection status */}
       <div style={{
         marginTop: 'auto',
         padding: '20px 24px',
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }}>
+        {/* User info + sign out */}
+        {user && (
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>
+              {user.email}
+            </div>
+            <button onClick={handleSignOut} style={{
+              padding: '6px 12px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '6px',
+              color: '#666',
+              fontSize: '11px',
+              cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif",
+            }}>
+              Sign Out
+            </button>
+          </div>
+        )}
+
         <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
           Data Source
         </div>
@@ -149,7 +177,7 @@ export default function OperatorNav() {
           AESO Connected
         </div>
         <div style={{ fontSize: '11px', color: '#333', marginTop: '4px' }}>
-          Live feed • 5 min interval
+          Live feed • 60s interval
         </div>
       </div>
     </nav>
