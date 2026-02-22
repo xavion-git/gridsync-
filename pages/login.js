@@ -132,7 +132,7 @@ export default function LoginPage() {
             fontSize: '28px', fontWeight: '800', color: '#ededed',
             letterSpacing: '-1px',
           }}>
-            ⚡ GridSync
+            GridSync
           </div>
           <div style={{ fontSize: '13px', color: '#555', marginTop: '6px' }}>
             Alberta Grid Intelligence Platform
@@ -232,8 +232,8 @@ export default function LoginPage() {
                 <label style={{ ...labelStyle, marginBottom: '8px' }}>I am a...</label>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                   {[
-                    { id: 'consumer', label: '🏠 Consumer', desc: 'Albertan resident' },
-                    { id: 'operator', label: '⚡ Operator', desc: 'AESO / utility' },
+                    { id: 'consumer', label: 'Consumer', desc: 'Albertan resident' },
+                    { id: 'operator', label: 'Operator', desc: 'AESO / utility' },
                   ].map(r => (
                     <button
                       type="button" key={r.id}
