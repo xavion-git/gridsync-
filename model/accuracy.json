@@ -1,7 +1,7 @@
 {
-  "mae_mw": 1186,
-  "accuracy_200mw": 3.3,
-  "accuracy_500mw": 19.9,
+  "mae_mw": 185,
+  "accuracy_200mw": 61.0,
+  "accuracy_500mw": 97.3,
   "has_temperature": true,
-  "trained_at": "2026-02-20T15:31:44.068558"
+  "trained_at": "2026-02-21T18:42:14.363544"
 }

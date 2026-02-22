@@ -16,8 +16,8 @@ cities = [
 
 # Match date range to your grid_clean.csv
 # Check what dates you have and set these to match
-START_DATE = '2025-02-20'   # ← change to your grid data start date
-END_DATE   = '2026-02-19'   # ← change to your grid data end date
+START_DATE = '2024-02-20'   # ← matches new 2-year grid data
+END_DATE   = '2026-01-20'   # ← matches new 2-year grid data
 
 all_dfs = []
 
