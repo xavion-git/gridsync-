@@ -5,7 +5,7 @@ import {
   ReferenceLine, CartesianGrid
 } from 'recharts'
 
-const MAX_CAPACITY = 13000
+const MAX_CAPACITY = 13000  // Demand response trigger threshold (not physical installed capacity ~23,310 MW)
 
 /*
  * GridStatus — The unified "command center" for Alberta's grid
@@ -298,7 +298,7 @@ export default function GridStatus({ onReady }) {
             <span style={{ fontSize: '18px', color: '#555' }}>MW</span>
           </div>
           <div style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
-            {pct}% of {MAX_CAPACITY.toLocaleString()} MW capacity
+            {pct}% of {MAX_CAPACITY.toLocaleString()} MW demand response threshold
           </div>
         </div>
 
@@ -405,7 +405,7 @@ export default function GridStatus({ onReady }) {
               stroke="#ff3b30"
               strokeDasharray="8 4"
               strokeWidth={1}
-              label={{ value: 'Max Capacity', fill: '#ff3b30', fontSize: 10, position: 'right' }}
+              label={{ value: 'DR Threshold', fill: '#ff3b30', fontSize: 10, position: 'right' }}
             />
             <Line
               type="monotone"
