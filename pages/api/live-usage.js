@@ -1,4 +1,4 @@
-const MAX_CAPACITY = 11700
+const MAX_CAPACITY = 13000
 
 /*
  * /api/live-usage — Returns current Alberta grid demand
@@ -74,8 +74,8 @@ export default async function handler(req, res) {
     }
 
     const status =
-      usage_mw > 11500 ? 'CRITICAL' :
-      usage_mw > 10500 ? 'WARNING' : 'STABLE'
+      usage_mw > 12200 ? 'CRITICAL' :
+      usage_mw > 11200 ? 'WARNING' : 'STABLE'
 
     res.status(200).json({
       usage_mw,

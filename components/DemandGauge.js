@@ -16,7 +16,7 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
   return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`
 }
 
-export default function DemandGauge({ pct = 0, status = 'STABLE', usageMw, maxMw = 11700 }) {
+export default function DemandGauge({ pct = 0, status = 'STABLE', usageMw, maxMw = 13000 }) {
   const START = 140   // arc start angle in degrees
   const END = 400     // arc end angle → 260° sweep
   const SWEEP = END - START

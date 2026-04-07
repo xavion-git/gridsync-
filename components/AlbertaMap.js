@@ -63,17 +63,20 @@ export default function AlbertaMap({ riskOverride }) {
       const map = L.map(mapRef.current, {
         center: [54.5, -115.0],
         zoom: 6,
-        zoomControl: true,
+        zoomControl: false, // will add custom position below
         scrollWheelZoom: false, // prevents page scroll hijacking
         attributionControl: false,
       })
 
+      // Move zoom control to bottom right so it doesn't cover labels
+      L.control.zoom({ position: 'bottomright' }).addTo(map)
+
       instanceRef.current = map
 
-      // Dark tile layer (Stadia Alidade Smooth Dark)
-      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+      // Dark tile layer (CartoDB Dark Matter — free, no API key needed)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 18,
-        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
       }).addTo(map)
 
       // Add city markers

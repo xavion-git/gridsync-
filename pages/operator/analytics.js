@@ -25,7 +25,7 @@ export default function OperatorAnalytics() {
 
   // Derive headline accuracy: 100 - (MAE / MAX_CAPACITY * 100)
   const maeMW = accuracy?.mae_mw ?? null
-  const headlineAccuracy = maeMW !== null ? (100 - (maeMW / 11700) * 100).toFixed(1) : '--'
+  const headlineAccuracy = maeMW !== null ? (100 - (maeMW / 13000) * 100).toFixed(1) : '--'
   const trainedAt = accuracy?.trained_at
     ? new Date(accuracy.trained_at).toLocaleDateString('en-CA', {
         month: 'short', day: 'numeric', year: 'numeric',

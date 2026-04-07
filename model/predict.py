@@ -1,7 +1,12 @@
 import pickle, json, requests, pandas as pd
 from datetime import datetime
+from pathlib import Path
 
-with open('alberta_model.pkl', 'rb') as f:
+# ── Absolute paths so script works from any CWD ──
+BASE  = Path(__file__).parent          # model/
+ROOT  = BASE.parent                    # project root
+
+with open(BASE / 'alberta_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 # Get fresh weather forecast
@@ -41,8 +46,8 @@ future['is_weekend']    = (future['ds'].dt.dayofweek >= 5).astype(int)
 forecast = model.predict(future)
 
 def get_risk(mw):
-    if mw > 11500: return 'critical'
-    if mw > 10500: return 'warning'
+    if mw > 12200: return 'critical'
+    if mw > 11200: return 'warning'
     return 'safe'
 
 results = []
@@ -54,12 +59,13 @@ for i, row in forecast.iterrows():
         'predicted_mw':  mw,
         'lower_bound':   max(0, round(row['yhat_lower'])),
         'upper_bound':   round(row['yhat_upper']),
-        'capacity_pct':  round((mw / 11700) * 100, 1),
+        'capacity_pct':  round((mw / 13000) * 100, 1),
         'risk_level':    get_risk(mw),
         'temperature_c': round(temp, 1),
     })
 
-with open('predictions.json', 'w') as f:
+out_path = ROOT / 'public' / 'predictions.json'
+with open(out_path, 'w') as f:
     json.dump({'generated_at': datetime.now().isoformat(), 'predictions': results}, f, indent=2)
 
 print(f"✅ Done — {len(results)} predictions generated")
